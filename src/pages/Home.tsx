@@ -2,12 +2,16 @@ import { useQuery } from "@tanstack/react-query";
 import { BASE_PATH } from "./System";
 import { EnvironmentRoot } from "../types/Environment";
 import BaseLayout from "./components/BaseLayout";
+import SkeletonAnimation from "./components/SkeletonAnimation";
 
 export const Home = () => {
   const {
     isLoading: isLoadingEnvironmentData,
     data: environmentData,
     error: environmentDataError,
+    isFetching: isEnvironmentDataFetching,
+    isPending: isEnvironmentDataPrefetch,
+    refetch,
   } = useQuery({
     queryKey: ["disk-usage"],
     queryFn: async () => {
@@ -24,9 +28,19 @@ export const Home = () => {
   const outsideTemperature = parseFloat(
     environmentData?.outside?.temperature.split(" ")[0] || ""
   );
+  const isPending =
+    isLoadingEnvironmentData ||
+    isEnvironmentDataFetching ||
+    isEnvironmentDataPrefetch;
   return (
     <BaseLayout>
       <div className="p-6 bg-gray-800 text-white rounded-lg shadow-md">
+        <button
+          onClick={() => refetch()}
+          className="mb-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
+        >
+          {isPending ? "Refreshing..." : "Refresh"}
+        </button>
         <h2 className="text-xl font-bold mb-4">Environment</h2>
         {isLoadingEnvironmentData ? (
           <div>Loading...</div>
@@ -52,7 +66,10 @@ export const Home = () => {
                         }}
                       ></div>
                     </div>
-                    Temperature: {environmentData?.outside?.temperature}
+                    Temperature:{" "}
+                    <SkeletonAnimation isLoading={isPending}>
+                      {environmentData?.outside?.temperature}
+                    </SkeletonAnimation>
                   </div>
                   <div>
                     <div className="relative w-4 h-24 bg-gray-300 rounded-full overflow-hidden">
@@ -70,11 +87,16 @@ export const Home = () => {
                         }}
                       ></div>
                     </div>
-                    Humidity: {environmentData?.outside?.humidity}
+                    Humidity:{" "}
+                    <SkeletonAnimation isLoading={isPending}>
+                      {environmentData?.outside?.humidity}
+                    </SkeletonAnimation>
                   </div>
                   <div>
                     Precipitation:{" "}
-                    {environmentData?.outside?.precipitation_last_hour}
+                    <SkeletonAnimation isLoading={isPending}>
+                      {environmentData?.outside?.humidity}
+                    </SkeletonAnimation>
                   </div>
                 </div>
               </div>
@@ -96,7 +118,10 @@ export const Home = () => {
                       ></div>
                     </div>
                     <div>
-                      Temperature: {environmentData?.inside?.temperature}°C
+                      Temperature:{" "}
+                      <SkeletonAnimation isLoading={isPending}>
+                        {environmentData?.inside?.temperature}°C
+                      </SkeletonAnimation>
                     </div>
                   </div>
                   <div>
@@ -115,9 +140,17 @@ export const Home = () => {
                         }}
                       ></div>
                     </div>
-                    Humidity: {environmentData?.inside?.humidity}%
+                    Humidity:{" "}
+                    <SkeletonAnimation isLoading={isPending}>
+                      {environmentData?.inside?.humidity}%
+                    </SkeletonAnimation>
                   </div>
-                  <div>Gas: {environmentData?.inside?.gas}</div>
+                  <div>
+                    Gas:{" "}
+                    <SkeletonAnimation isLoading={isPending}>
+                      {environmentData?.inside?.gas}
+                    </SkeletonAnimation>
+                  </div>
                 </div>
               </div>
             </div>
